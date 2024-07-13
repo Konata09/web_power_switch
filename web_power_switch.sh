@@ -55,15 +55,27 @@ function GetStatusByOutlet() {
 
 # $1=Outlet number
 function TurnOn() {
-  curl -s --no-progress-meter http://$USER:"$PASSWORD"@"$HOST"/outlet?"$1"=ON > /dev/null
+  outlet=$1
+  if [[ "$1" == all ]]; then
+    outlet=a
+  fi
+  curl -s --no-progress-meter http://$USER:"$PASSWORD"@"$HOST"/outlet?"$outlet"=ON > /dev/null
 }
 # $1=Outlet number
 function TurnOff() {
-  curl -s --no-progress-meter http://$USER:"$PASSWORD"@"$HOST"/outlet?"$1"=OFF > /dev/null
+  outlet=$1
+  if [[ "$1" == all ]]; then
+    outlet=a
+  fi
+  curl -s --no-progress-meter http://$USER:"$PASSWORD"@"$HOST"/outlet?"$outlet"=OFF > /dev/null
 }
 # $1=Outlet number
 function Cycle() {
-  curl -s --no-progress-meter http://$USER:"$PASSWORD"@"$HOST"/outlet?"$1"=CCL > /dev/null
+   outlet=$1
+   if [[ "$1" == all ]]; then
+     outlet=a
+   fi
+ curl -s --no-progress-meter http://$USER:"$PASSWORD"@"$HOST"/outlet?"$outlet"=CCL > /dev/null
 }
 
 # $1=Script line
@@ -73,18 +85,20 @@ function RunScript() {
 }
 
 function PrintUsage() {
-  echo "Usage: web_power_switch.sh COMMAND OUTLET/LINE [ACTION]"
+  echo "Usage: web_power_switch.sh COMMAND {OUTLET|LINE} [ACTION]"
   echo ""
   echo "  COMMAND: "
-  echo "    set       Perform an action on outlet"
-  echo "    get       Get outlet status"
-  echo "    run       run script line configured in switch"
-  echo "  OUTLET/LINE: "
-  echo "    <number>  Outlet number (0~8) or Script line number"
+  echo "    set           Perform an action on outlet"
+  echo "    get           Get outlet status"
+  echo "    run           run script line configured in switch"
+  echo "  OUTLET: "
+  echo "    <number>|all  Outlet number (0~8)"
+  echo "  LINE: "
+  echo "    <number>      Script line number"
   echo "  ACTION: "
-  echo "    on        turn outlet on"
-  echo "    off       turn outlet off"
-  echo "    cycle     cycle a outlet"
+  echo "    on            turn outlet on"
+  echo "    off           turn outlet off"
+  echo "    cycle         cycle a outlet"
 }
 
 if [[ "$1" == get ]]; then
