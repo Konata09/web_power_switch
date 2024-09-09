@@ -42,7 +42,16 @@ function get_bit() {
 
 # $1=Outlet number
 function GetStatusByOutlet() {
-  htmlText=$(curl -s http://$USER:"$PASSWORD"@$HOST/status)
+  cache_file="/tmp/web_power_switch_status_cache"
+  cache_duration=15
+
+  # Check if the cache file exists and is not older than the cache duration
+  if [[ -f "$cache_file" && $(($(date +%s) - $(stat -c %Y "$cache_file"))) -lt $cache_duration ]]; then
+    htmlText=$(cat "$cache_file")
+  else
+    htmlText=$(curl -s http://$USER:"$PASSWORD"@$HOST/status)
+    echo "$htmlText" > "$cache_file"
+  fi
 
   state=$(echo "$htmlText" | $GREP -o '(?<=div id="state">)[^<]+')
 #  lock=$(echo "$htmlText" | $GREP -o '(?<=div id="lock">)[^<]+')
